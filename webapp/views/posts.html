@@ -1,0 +1,29 @@
+<div class="row">
+    <div class="col-sm-8 col-sm-offset-2">
+        <div class="panel panel-default" ng-repeat="post in posts">
+            <h4 class="panel-heading">{{post.from.name}}</h4>
+            <div class="panel-body">
+                <pre>{{post.message | limitTo: 200}}</br>...</pre>
+            </div>
+            <div class="panel-footer">
+                <ul class="list-inline">
+                    <li>
+                        <a href="/#/posts/{{post.id}}">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            See More
+                        </a>
+                    </li>
+                    <li ng-show="{{post.comment_count}}">
+                        <span class="glyphicon glyphicon-comment"></span>
+                        {{post.comment_count}} Comments
+                    </li>
+                    <li>
+                        <span class="glyphicon glyphicon-thumbs-up"></span>
+                        {{post.like_count}} Likes
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
