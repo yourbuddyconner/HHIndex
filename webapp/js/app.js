@@ -1,7 +1,7 @@
 var app = angular.module("HHIndex", ["firebase", "ui.router"]);
 
 //Controllers
-app.controller("PostsCtrl", function($scope, $firebase) {
+app.controller("PostsCtrl", function($scope, $firebase, $rootScope) {
   var ref = new Firebase("https://hhindex.firebaseio.com/posts");
 
   // create an AngularFire reference to the data
@@ -16,7 +16,7 @@ app.controller("PostsCtrl", function($scope, $firebase) {
   // });
 });
 
-app.controller("PostCtrl", function($scope, $stateParams, $firebase){
+app.controller("PostCtrl", function($scope, $stateParams, $firebase, $sce){
   post_url = "https://hhindex.firebaseio.com/posts/" + $stateParams.postID;
 
   var ref = new Firebase(post_url);
@@ -25,6 +25,29 @@ app.controller("PostCtrl", function($scope, $stateParams, $firebase){
   $scope.post = sync.$asObject();
 });
 
+//Services 
+app.run(function($rootScope, $sce){
+    $rootScope.HTMLify = function(string){
+      if (string){
+        console.log("working...");
+        string = string.trim();
+        return $sce.trustAsHtml(string.length>0?'<p>'+string.replace(/[\r\n]+/,'</p><p>')+'</p>':null);
+      }
+    };
+    $rootScope.linkify = function(string){
+      if (string){
+        return Autolinker.link(string);
+      }
+    };
+    $rootScope.trunc = function(string, num){
+      if (string.length > 180){
+        return string.slice(0, num) + "...";
+      }
+      return string
+    };
+});
+
+//App config
 app.config(function($stateProvider, $urlRouterProvider) {
   $urlRouterProvider.otherwise("/posts");
   $stateProvider

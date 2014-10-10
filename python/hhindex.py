@@ -3,6 +3,10 @@
 #   post for the relevant information, creates new post objects, and then 
 #   relays those objects to Firebase for storage and use in the AngularJS
 #   postion of this application. 
+#
+#   This script requires the following dependancies:
+#       fbconsole: https://github.com/fbsamples/fbconsole
+#       python-firebase: https://github.com/mikexstudios/python-firebase
 
 import json
 from datetime import datetime, timedelta

@@ -3,7 +3,7 @@
         <div class="panel panel-default" ng-repeat="post in posts">
             <h4 class="panel-heading">{{post.from.name}}</h4>
             <div class="panel-body">
-                <pre>{{post.message | limitTo: 200}}</br>...</pre>
+                <div ng-bind-html="HTMLify(linkify(trunc(post.message, 180)))"></div>
             </div>
             <div class="panel-footer">
                 <ul class="list-inline">
