@@ -1,50 +1,27 @@
-var app = angular.module("HHIndex", ["firebase", "ui.router"]);
-
-//Controllers
-app.controller("PostsCtrl", function($scope, $firebase, $rootScope) {
-  var ref = new Firebase("https://hhindex.firebaseio.com/posts");
-
-  // create an AngularFire reference to the data
-  var sync = $firebase(ref);
-
-  // download the data into a local object
-  $scope.posts = sync.$asObject();
-  // $scope.posts_formatted = {};
-  // $scope.posts.forEach(function(post){
-  //   post.message = encode4HTML(post.message);
-  //   posts_formatted.push(post);
-  // });
-});
-
-app.controller("PostCtrl", function($scope, $stateParams, $firebase, $sce){
-  post_url = "https://hhindex.firebaseio.com/posts/" + $stateParams.postID;
-
-  var ref = new Firebase(post_url);
-  var sync = $firebase(ref);
-
-  $scope.post = sync.$asObject();
-});
+var app = angular.module("HHIndex", ["firebase", "ui.router", "HHIndex.services", "HHIndex.controllers"]);
 
 //Services 
 app.run(function($rootScope, $sce){
-    $rootScope.HTMLify = function(string){
-      if (string){
-        console.log("working...");
-        string = string.trim();
-        return $sce.trustAsHtml(string.length>0?'<p>'+string.replace(/[\r\n]+/,'</p><p>')+'</p>':null);
-      }
-    };
-    $rootScope.linkify = function(string){
-      if (string){
-        return Autolinker.link(string);
-      }
-    };
-    $rootScope.trunc = function(string, num){
-      if (string.length > 180){
-        return string.slice(0, num) + "...";
-      }
-      return string
-    };
+  //Utilities that every controller should be able to access
+  $rootScope.HTMLify = function(string){
+    if (string){
+      string = string.trim();
+      return $sce.trustAsHtml(string.length>0?'<p>'+string.replace(/[\r\n]+/,'</p><p>')+'</p>':null);
+    }
+  };
+  $rootScope.linkify = function(string){
+    if (string){
+      return Autolinker.link(string);
+    }
+  };
+  $rootScope.trunc = function(string, num){
+    if(string){
+        if (string.length > 180){
+          return string.slice(0, num) + "...";
+        }
+        return string;
+    }
+  };
 });
 
 //App config

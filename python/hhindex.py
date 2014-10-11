@@ -12,6 +12,7 @@ import json
 from datetime import datetime, timedelta
 import fbconsole
 from firebase import Firebase
+import lib.user 
 
 #Firebase object
 f = Firebase('https://hhindex.firebaseio.com/posts')
@@ -32,7 +33,7 @@ if firebase_posts == None:
     firebase_posts = []
 posts = []
 
-num_pages = 1
+num_pages = 5
 while num_pages > 0:
     # Fetch the first 25-ish items from the group feed
     feed = facebook.get(group_path) 
