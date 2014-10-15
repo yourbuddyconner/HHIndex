@@ -3,11 +3,12 @@ angular.module("HHIndex.controllers", ['firebase'])
 .controller("PostsCtrl", function($scope, $firebase, $rootScope, Posts) {
   // download the data into a local object
   $scope.posts = Posts.getPosts();
-  // $scope.posts_formatted = {};
-  // $scope.posts.forEach(function(post){
-  //   post.message = encode4HTML(post.message);
-  //   posts_formatted.push(post);
-  // });
+
+  $scope.isLong = function(string){
+    if(string){
+      return string.length > 500;
+    }
+  };
 })
 
 .controller("PostCtrl", function($scope, $stateParams, $firebase, $sce){

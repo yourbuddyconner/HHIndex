@@ -11,12 +11,18 @@
 import json
 from datetime import datetime, timedelta
 import fbconsole
-from firebase import Firebase
-import lib.user 
+import elasticsearch
+import logging
+logging.basicConfig(level=logging.INFO)
+
+
+#from firebase import Firebase
 
 #Firebase object
-f = Firebase('https://hhindex.firebaseio.com/posts')
+#f = Firebase('https://hhindex.firebaseio.com/posts')
+es = elasticsearch.Elasticsearch([{'host': '162.252.243.7', 'port': 9200}])
 
+#es = Elasticsearch(['162.252.243.7:9200'])
 #Facebook object and config stuff 
 facebook = fbconsole
 facebook.APP_ID = '837894229583934'
@@ -28,12 +34,15 @@ group_path = "/" + group_id + "/feed"
 one_day_ago = datetime.utcnow() - timedelta(days=1)
 
 # Fetch the ID's of the posts we already have
-firebase_posts = f.get_shallow({"shallow": "true"})
-if firebase_posts == None: 
-    firebase_posts = []
+# firebase_posts = f.get_shallow({"shallow": "true"})
+# if firebase_posts == None: 
+#     firebase_posts = []
+
+# es_posts = es.get(index="HH-Posts", doc_type="post")
+# es_posts = es_posts["_source"]
 posts = []
 
-num_pages = 5
+num_pages = 11
 while num_pages > 0:
     # Fetch the first 25-ish items from the group feed
     feed = facebook.get(group_path) 
@@ -42,7 +51,7 @@ while num_pages > 0:
         # The time the post was last updated
         updated = datetime.strptime(post["updated_time"], "%Y-%m-%dT%H:%M:%S+%f")
         # Check if we have it and that it's within time bounds
-        if post["id"] not in firebase_posts and updated > one_day_ago: 
+        if updated > one_day_ago: 
             # Create a new post so we can get rid of any oAuth tokens that
             # are hanging around
             sanitizedPost = {}
@@ -77,14 +86,17 @@ while num_pages > 0:
 
             print "New one: ", post["id"]
             # Wraps the post object in another object so it has a unique ID
-            new_dict = {post["id"]: sanitizedPost}
-            posts.append(new_dict)
+            posts.append(sanitizedPost)
         #TODO:  Write another if-statement that will update pre-existing posts with new
         #       comments and likes. 
     # Handle pagination
     try: 
         next_page = feed["paging"]["next"]
-        group_path = next_page[31:]
+        if next_page[31:] != group_path:
+            group_path = next_page[31:]
+        else:
+            print "No more pages :("
+            break
         print "Getting next page at: ", group_path
     except KeyError:
         break
@@ -92,6 +104,8 @@ while num_pages > 0:
 
 # Relay all the new posts to Firebase for safekeeping
 for post in posts:
-    print "pushing to Firebase"
-    f.patch(post)
+    print "pushing to ElasticSearch"
+    res = es.index(index="hh-posts", doc_type="post", id=post['id'], body=post, ignore=500)
+    print res
+    #f.patch(post)
 print "Done"
